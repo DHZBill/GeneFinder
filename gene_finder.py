@@ -2,7 +2,7 @@
 """
 YOUR HEADER COMMENT HERE
 
-@author: YOUR NAME HERE
+@author: Bill Du
 
 """
 
@@ -30,6 +30,14 @@ def get_complement(nucleotide):
     >>> get_complement('C')
     'G'
     """
+    if nucleotide=='A':
+    	return 'T'
+    if nucleotide=='C':
+    	return 'G'
+    if nucleotide=='T':
+    	return 'A'
+    if nucleotide=='G':
+    	return 'C'
     # TODO: implement this
     pass
 
@@ -46,6 +54,12 @@ def get_reverse_complement(dna):
     'TGAACGCGG'
     """
     # TODO: implement this
+    reverse=[None]*len(dna)
+    for i in range(0,len(dna)):
+    	reverse[len(dna)-i-1]=get_complement(dna[i])
+    s=''
+    reverse=s.join(reverse)
+    return reverse
     pass
 
 
@@ -61,8 +75,16 @@ def rest_of_ORF(dna):
     'ATG'
     >>> rest_of_ORF("ATGAGATAGG")
     'ATGAGA'
-    """
+    """    
     # TODO: implement this
+    for i in range(3,len(dna)-2,3):
+    	stop_codon=dna[i:i+3]
+    	start_codon=dna[:i]
+    	if stop_codon=='TAG' or stop_codon=='TAA' or stop_codon=='TGA':
+    		return start_codon
+    		break
+    	if (i+3) >= len(dna)-2:
+        	return dna
     pass
 
 
@@ -76,10 +98,28 @@ def find_all_ORFs_oneframe(dna):
 
         dna: a DNA sequence
         returns: a list of non-nested ORFs
+        The test added below is to make sure that when the given DNA does't start with a start codon,
+        and when there's invalid codons in the DNA, the function still gives a correct output.
+    >>> find_all_ORFs_oneframe("GGGATGCATGAATGTAGATAGGGGGGGATGTGCCC")
+    ['ATGCATGAATGTAGA', 'ATGTGCCC']
     >>> find_all_ORFs_oneframe("ATGCATGAATGTAGATAGATGTGCCC")
     ['ATGCATGAATGTAGA', 'ATGTGCCC']
     """
     # TODO: implement this
+    
+
+    ORFs=[]
+    i=0
+    while i<len(dna):
+        if dna[i:i+3]=="ATG":
+            j=i
+            dna2=rest_of_ORF(dna[j:])
+            ORFs.append(dna2)
+            i=i+len(dna2)
+        i=i+3
+    return ORFs
+    	
+
     pass
 
 
@@ -93,10 +133,23 @@ def find_all_ORFs(dna):
         dna: a DNA sequence
         returns: a list of non-nested ORFs
 
+    >>> find_all_ORFs_oneframe("GGGATGCATGAATGTAGATAGGGGGGGATGTGCCC")
+    ['ATGCATGAATGTAGA', 'ATGTGCCC']
     >>> find_all_ORFs("ATGCATGAATGTAG")
     ['ATGCATGAATGTAG', 'ATGAATGTAG', 'ATG']
     """
     # TODO: implement this
+    all_ORFs=[]
+    for i in range (0,3):
+    	frame=dna[i:] 
+        all_ORFs=all_ORFs+find_all_ORFs_oneframe(frame)
+    return all_ORFs
+    
+
+
+
+
+    
     pass
 
 
@@ -110,6 +163,13 @@ def find_all_ORFs_both_strands(dna):
     ['ATGCGAATG', 'ATGCTACATTCGCAT']
     """
     # TODO: implement this
+    origin=dna
+    reverse=str(get_reverse_complement(dna))
+    O_ORF=find_all_ORFs(origin)
+    R_ORF=find_all_ORFs(reverse)
+    Both=O_ORF+R_ORF
+    return Both
+
     pass
 
 
